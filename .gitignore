@@ -1,0 +1,85 @@
+# ===============================
+# Rust / Cargo build artifacts
+# ===============================
+
+/target/
+**/*.rs.bk
+
+# Cargo.lock handling:
+# Keep Cargo.lock for applications (recommended)
+# Uncomment if you want to ignore it
+# Cargo.lock
+
+
+# ===============================
+# IDE / Editor files
+# ===============================
+
+# VS Code
+.vscode/
+
+# JetBrains IDEs (CLion, RustRover, IntelliJ)
+.idea/
+
+# Vim
+*.swp
+*.swo
+
+# Emacs
+*~
+
+
+# ===============================
+# OS-generated files
+# ===============================
+
+# Windows
+Thumbs.db
+Desktop.ini
+
+# macOS
+.DS_Store
+
+# Linux
+*~
+
+# ===============================
+# Local configuration overrides
+# ===============================
+
+# User-specific settings should not be committed
+config/user.toml
+
+
+# ===============================
+# Logs and temporary files
+# ===============================
+
+*.log
+*.tmp
+
+
+# ===============================
+# Packaging / Release artifacts
+# ===============================
+
+dist/
+build/
+release/
+
+
+# ===============================
+# Optional: Environment files
+# ===============================
+
+.env
+.env.local
+
+
+# ===============================
+# Optional: AI or plugin cache storage
+# ===============================
+
+# If later you add embeddings/vector DB storage locally
+data/
+cache/
