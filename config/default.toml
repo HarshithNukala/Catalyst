@@ -1,0 +1,15 @@
+# config/default.toml
+[general]
+max_results = 10
+telemetry = false
+
+[appearance]
+theme = "light"
+window_width = 600
+window_height = 500
+
+[hotkeys]
+show_launcher = "Alt+Space"
+
+[plugins]
+# Plugin-specific configs will go here
