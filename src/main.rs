@@ -1,3 +1,4 @@
+#![allow(unused_imports)]
 use std::process::Child;
 
 use gpui:: {
@@ -10,6 +11,8 @@ use adabraka_ui::components::input::{Input, InputEvent};
 use adabraka_ui::components::input_state::InputState;
 use futures::channel::mpsc;
 use futures::StreamExt;
+
+use global_hotkey::{GlobalHotKeyManager, GlobalHotKeyEvent, hotkey::{HotKey, Modifiers, Code}};
 
 actions!(Input_element, [HideApp]);
 
@@ -153,49 +156,35 @@ fn main() {
         )
         .unwrap();
 
-        // Set up global hotkey (Ctrl+Space) via Win32 API
+        let manager = GlobalHotKeyManager::new().unwrap();
+        let hotkey = HotKey::new(Some(Modifiers::CONTROL), Code::Space);
+        let _ = manager.register(hotkey);
+        Box::leak(Box::new(manager));
+
         let (tx, mut rx) = mpsc::unbounded::<()>();
 
         std::thread::spawn(move || {
-            unsafe {
-                use windows::Win32::UI::Input::KeyboardAndMouse::{
-                    RegisterHotKey, MOD_CONTROL, VK_SPACE,
-                };
-                use windows::Win32::UI::WindowsAndMessaging::{GetMessageW, MSG, WM_HOTKEY};
-
-                let result = RegisterHotKey(None, 1, MOD_CONTROL, VK_SPACE.0 as u32);
-                match result {
-                    Ok(_) => println!("Global hotkey Ctrl+Space registered successfully"),
-                    Err(e) => {
-                        eprintln!("Failed to register global hotkey: {}", e);
-                        return;
-                    }
-                }
-
-                let mut msg = MSG::default();
-                while GetMessageW(&mut msg, None, 0, 0).as_bool() {
-                    if msg.message == WM_HOTKEY {
-                        let _ = tx.unbounded_send(());
-                    }
+            let receiver = GlobalHotKeyEvent::receiver();
+            loop {
+                if let Ok(_event) = receiver.recv() {
+                    let _ = tx.unbounded_send(());
                 }
             }
         });
 
-        // GPUI async task: listen for hotkey signal and show the window
         let async_cx = cx.to_async();
         cx.foreground_executor().spawn(async move {
             while let Some(()) = rx.next().await {
                 let _ = async_cx.update(|cx| {
                     let _ = window_handle.update(cx, |view, window, _cx| {
+                        println!("Showing app");
                         _cx.activate(true);
                         window.show_window();
                         view.input_state.focus_handle(_cx).focus(window);
-                        println!("Showing app via global hotkey!");
                     });
                 });
             }
-        })
-        .detach();
+        }).detach();
 
         cx.activate(true);
     })
