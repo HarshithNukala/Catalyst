@@ -21,6 +21,7 @@ pub enum BuiltInIcon {
     Settings,
     AI,
     Web,
+    App
 }
 
 #[derive(Debug, Clone, PartialEq)]

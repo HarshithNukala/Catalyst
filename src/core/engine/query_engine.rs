@@ -11,13 +11,15 @@ use super::Ranker;
 pub struct QueryEngine {
     registry: Arc<PluginRegistry>,
     ranker: Ranker,
+    runtime: Arc<tokio::runtime::Runtime>,
 }
 
 impl QueryEngine {
-    pub async fn new(registry: Arc<PluginRegistry>) -> Self {
+    pub fn new(registry: Arc<PluginRegistry>) -> Self {
         Self {
             registry,
-            ranker: Ranker::new()
+            ranker: Ranker::new(),
+            runtime: Arc::new(tokio::runtime::Runtime::new().expect("Failed to create Tokio runtime for QueryEngine")),
         }
     }
     pub async fn search(&self, query: &str, context: &PluginContext) -> anyhow::Result<Vec<ResultItem>> {
@@ -29,15 +31,16 @@ impl QueryEngine {
             return Ok(Vec::new());
         }
         log::debug!("Searching {} for plugin for: {}", plugins.len(), query);
+        
         let mut tasks = JoinSet::new();
         for plugin in plugins {
             let query = query.to_lowercase();
             let context_clone = context.clone();
-            tasks.spawn(async move {
+            tasks.spawn_on(async move {
                 let plugin_query = plugin.trigger().matches(&query).unwrap_or_default();
                 let results = plugin.search(&plugin_query, &context_clone).await;
                 (plugin.id().to_string(), results)
-            });
+            }, self.runtime.handle());
         }
         let mut all_results = Vec::new();
         while let Some(result) = tasks.join_next().await {

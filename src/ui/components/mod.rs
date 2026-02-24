@@ -1,6 +1,6 @@
-mod result_list;
-mod result_row;
-mod search_bar;
+pub mod result_list;
+pub mod result_row;
+pub mod search_bar;
 
 pub use result_list::*;
 pub use result_row::*;
