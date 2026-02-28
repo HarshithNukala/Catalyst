@@ -19,6 +19,8 @@ use adabraka_ui::components::input_state::InputState;
 use futures::channel::mpsc;
 use futures::StreamExt;
 
+use crate::core::engine::ActionDispatcher;
+
 
 
 
@@ -53,6 +55,7 @@ fn main() {
         install_theme(cx, Theme::dark());
 
         let registry = std::sync::Arc::new(crate::core::plugin::PluginRegistry::new());
+        let dispatcher = std::sync::Arc::new(ActionDispatcher::new(registry.clone()));
         futures::executor::block_on(async {
             let plugin: std::sync::Arc<dyn crate::core::plugin::Plugin> = std::sync::Arc::new(crate::plugins::implicit::app_search::AppSearchPlugin::new());
             let _ = registry.register(plugin).await;
@@ -77,6 +80,10 @@ fn main() {
         
         let window_handle = cx.open_window(
             WindowOptions {
+                // titlebar: Some(TitlebarOptions {
+                //     title: Some("Catalyst".into()),
+                //     ..Default::default()
+                // }),
                 titlebar: None,
                 focus: true,
                 show: true,
@@ -86,7 +93,7 @@ fn main() {
                 ..Default::default()
             },
             |window, cx| {
-                cx.new(|cx| ui::components::search_bar::Input_element::new(window, cx, engine.clone()))
+                cx.new(|cx| ui::components::search_bar::Input_element::new(window, cx, engine.clone(), dispatcher.clone()))
             },
         )
         .unwrap();

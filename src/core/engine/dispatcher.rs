@@ -9,12 +9,14 @@ use crate::core::{
 
 pub struct ActionDispatcher {
     registry: Arc<PluginRegistry>,
+    runtime: Arc<tokio::runtime::Runtime>
 }
 
 impl ActionDispatcher {
     pub fn new(registry: Arc<PluginRegistry>) -> Self {
         Self {
-            registry
+            registry,
+            runtime: Arc::new(tokio::runtime::Runtime::new().expect("Failed to create tokio runtime for ActionDispatcher.")),
         }
     }
     pub fn execute(
@@ -24,7 +26,7 @@ impl ActionDispatcher {
             context: PluginContext, 
         ) -> tokio::task::JoinHandle<anyhow::Result<()>> {
             let registry = self.registry.clone();
-            tokio::spawn(async move {
+            self.runtime.spawn(async move {
                 log::info!("Executing action from plugin: {}", plugin_id);
                 let plugin = registry.get(&plugin_id).await.ok_or_else(|| {
                     anyhow::anyhow!("Plugin {} not found.", plugin_id)

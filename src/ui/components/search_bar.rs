@@ -1,16 +1,17 @@
+use env_logger::fmt::style::Style;
 use gpui:: {
     App, Application, AsyncApp, Bounds, Context, Entity, FocusHandle, Focusable, KeyBinding, KeyDownEvent, Point, SharedString, Size, Subscription, Window, WindowBounds, WindowOptions, actions, div, prelude::*, px, rgb, size, AssetSource
 };
-use std::sync::Arc;
+use std::sync::{Arc, Condvar};
 use adabraka_ui::components::input::{Input, InputEvent, InputVariant};
 use adabraka_ui::components::input_state::InputState;
 
-use crate::core::engine::QueryEngine;
+use crate::core::engine::{ActionDispatcher, QueryEngine};
 use crate::core::model::{Action, BuiltInIcon, ResultIcon, ResultItem};
 use crate::core::plugin;
 use crate::core::plugin::{PluginContext, PluginRegistry};
 
-actions!(Input_element, [HideApp]);
+actions!(Input_element, [HideApp, ExecuteSelected, NavigateDown, NavigateUp]);
 
 pub struct Input_element {
     pub input_state: Entity<InputState>,
@@ -19,13 +20,14 @@ pub struct Input_element {
     focus_handle: FocusHandle,
 
     engine: Arc<QueryEngine>,
+    dispatcher: Arc<ActionDispatcher>,
     results: Vec<ResultItem>,
     selected_index: usize,
     is_searching: bool,
 }
 
 impl Input_element {
-    pub fn new(window: &mut Window, cx: &mut Context<Self>, engine: Arc<QueryEngine>) -> Self {
+    pub fn new(window: &mut Window, cx: &mut Context<Self>, engine: Arc<QueryEngine>, dispatcher: Arc<ActionDispatcher>) -> Self {
         let input_state = cx.new(|cx| InputState::new(cx));
         input_state.focus_handle(cx).focus(window);
         
@@ -33,6 +35,9 @@ impl Input_element {
         
         cx.bind_keys([
             KeyBinding::new("escape", HideApp, None),
+            KeyBinding::new("enter", ExecuteSelected, None),
+            KeyBinding::new("down", NavigateDown, None),
+            KeyBinding::new("up", NavigateUp, None),
         ]);
         
         cx.observe_window_activation(window, |_this, _window, cx| {
@@ -84,6 +89,7 @@ impl Input_element {
             results: Vec::new(),
             selected_index: 0,
             is_searching: false,
+            dispatcher,
         }
     }
     
@@ -91,33 +97,26 @@ impl Input_element {
         println!("Hiding app!!");
         window.hide_window();
     }
+    fn execute_selected(&mut self, _: &ExecuteSelected, window: &mut Window, cx: &mut Context<Self>) {
+        if let Some(result) = self.results.get(self.selected_index) {
+            let action = result.action.clone();
+            let plugin_id = result.plugin_id.to_string();
+            let context = PluginContext {config: serde_json::json!({})};
+            self.dispatcher.execute(plugin_id, action, context);
+            window.hide_window();
+        }
+    }
+    fn navigate_down(&mut self, _: &NavigateDown, window: &mut Window, cx: &mut Context<Self>) {
+        self.selected_index = (self.selected_index + 1) % self.results.len();
+        cx.notify();
+    }
+    fn navigate_up(&mut self, _: &NavigateUp, window: &mut Window, cx: &mut Context<Self>) {
+        if self.selected_index != 0 {
+            self.selected_index = (self.selected_index - 1) % self.results.len();
+        }
+        cx.notify();
+    }
 }
-
-// fn dummy_apps() -> Vec<ResultItem> {
-//     vec![
-//         ResultItem::new("1", "Google Chrome", Action::LaunchApp { path: "chrome.exe".into(), args: vec![] }, "apps")
-//             .with_subtitle("Web Browser")
-//             .with_icon(ResultIcon::BuiltIn(BuiltInIcon::Web)),
-//         ResultItem::new("2", "Visual Studio Code", Action::LaunchApp { path: "code.exe".into(), args: vec![] }, "apps")
-//             .with_subtitle("Code Editor")
-//             .with_icon(ResultIcon::BuiltIn(BuiltInIcon::File)),
-//         ResultItem::new("3", "Windows Terminal", Action::LaunchApp { path: "wt.exe".into(), args: vec![] }, "apps")
-//             .with_subtitle("Terminal Emulator")
-//             .with_icon(ResultIcon::BuiltIn(BuiltInIcon::Terminal)),
-//         ResultItem::new("4", "File Explorer", Action::LaunchApp { path: "explorer.exe".into(), args: vec![] }, "apps")
-//             .with_subtitle("File Manager")
-//             .with_icon(ResultIcon::BuiltIn(BuiltInIcon::Folder)),
-//         ResultItem::new("5", "Settings", Action::OpenSettings, "system")
-//             .with_subtitle("System Preferences")
-//             .with_icon(ResultIcon::BuiltIn(BuiltInIcon::Settings)),
-//         ResultItem::new("6", "Calculator", Action::LaunchApp { path: "calc.exe".into(), args: vec![] }, "apps")
-//             .with_subtitle("Math Calculator")
-//             .with_icon(ResultIcon::BuiltIn(BuiltInIcon::Calculator)),
-//         ResultItem::new("7", "Notepad", Action::LaunchApp { path: "notepad.exe".into(), args: vec![] }, "apps")
-//             .with_subtitle("Text Editor")
-//             .with_icon(ResultIcon::BuiltIn(BuiltInIcon::File)),
-//     ]
-// }
 
 impl Render for Input_element {
     fn render(&mut self, window: &mut Window, cx: &mut Context<Self>) -> impl IntoElement {
@@ -131,9 +130,12 @@ impl Render for Input_element {
             .gap_0()
             .justify_center()
             .items_center()
-            .key_context("Input_element")
+            .key_context("Input_element")            
             .track_focus(&self.focus_handle)
             .on_action(cx.listener(Self::hide_app))
+            .on_action(cx.listener(Self::execute_selected))
+            .on_action(cx.listener(Self::navigate_down))
+            .on_action(cx.listener(Self::navigate_up))
             .child(
                 Input::new(&self.input_state)
                     .placeholder("Type to search...")
@@ -156,8 +158,8 @@ impl Render for Input_element {
                     .flex_col()
                     .gap_1()
                     .child(
-                        ResultList::new(self.results.clone(), 0, false)
-                    )
+                        ResultList::new(self.results.clone(), self.selected_index, false)
+                    ) 
             )
     }
 }
@@ -278,9 +280,12 @@ impl RenderOnce for ResultRow {
                     .child(
                         div()
                         .font_weight(gpui::FontWeight::MEDIUM)
-                            .text_color(gpui::black())
+                            .text_color(gpui::white())
                             .truncate()
                             .child(title)
+                            .when(is_selected, |this| {
+                                this.text_color(gpui::black())
+                            })
                     )
                     .when_some(subtitle, |this, subtitle| {
                         this.child(

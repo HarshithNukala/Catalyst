@@ -39,11 +39,30 @@ impl AppIndex {
             // PathBuf since it is absolute
             PathBuf::from(r"C:\ProgramData\Microsoft\Windows\Start Menu\Programs"),
             // dirs::data_dir() since it is relative. An alternative is to use std::env::home_dir() inside of PathBuf::from()
-            dirs::data_dir().unwrap().join(r"Microsoft\Windows\Start Menu\Programs")
+            dirs::data_dir().unwrap().join(r"Microsoft\Windows\Start Menu\Programs"),
+            // paths for desktop applications
         ];
         for dir in dirs {
             Self::scan_dir(&dir, &mut apps);
         }
+
+        let built_in_apps = vec![
+            ("File Explorer", r"C:\Windows\explorer.exe"),
+            ("Task Manager", r"C:\Windows\System32\Taskmgr.exe"),
+            ("Command Prompt", r"C:\Windows\System32\cmd.exe"),
+            ("Registry Editor", r"C:\Windows\regedit.exe"),
+            ("Calculator", r"C:\Windows\System32\calc.exe"),
+            ("Notepad", r"C:\Windows\System32\notepad.exe"),
+            ("Paint", r"C:\Windows\System32\mspaint.exe"),
+            ("Control Panel", r"C:\Windows\System32\control.exe"),
+        ];
+        for (name, path) in built_in_apps {
+            let path_buf = PathBuf::from(path);
+            if path_buf.exists() {
+                apps.push(AppEntry { name: name.to_string(), path: path_buf, icon: None });
+            }
+        }
+
         apps.sort_by(|a, b| a.name.cmp(&b.name));
         apps.dedup_by(|a, b| a.name == b.name);
         Self { apps }
