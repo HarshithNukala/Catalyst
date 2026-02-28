@@ -55,7 +55,7 @@ impl AppIndex {
             ("Notepad", r"C:\Windows\System32\notepad.exe"),
             ("Paint", r"C:\Windows\System32\mspaint.exe"),
             ("Control Panel", r"C:\Windows\System32\control.exe"),
-        ];
+        ]; 
         for (name, path) in built_in_apps {
             let path_buf = PathBuf::from(path);
             if path_buf.exists() {

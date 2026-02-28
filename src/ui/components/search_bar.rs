@@ -1,7 +1,10 @@
 use env_logger::fmt::style::Style;
+use global_hotkey::hotkey::Modifiers;
 use gpui:: {
-    App, Application, AsyncApp, Bounds, Context, Entity, FocusHandle, Focusable, KeyBinding, KeyDownEvent, Point, SharedString, Size, Subscription, Window, WindowBounds, WindowOptions, actions, div, prelude::*, px, rgb, size, AssetSource
+    App, Application, AssetSource, AsyncApp, Bounds, Context, Entity, FocusHandle, Focusable, KeyBinding, KeyDownEvent, Point, ScrollHandle, SharedString, Size, Subscription, Window, WindowBounds, WindowOptions, actions, div, prelude::*, px, rgb, size
 };
+use std::result;
+// use core::index;
 use std::sync::{Arc, Condvar};
 use adabraka_ui::components::input::{Input, InputEvent, InputVariant};
 use adabraka_ui::components::input_state::InputState;
@@ -24,6 +27,7 @@ pub struct Input_element {
     results: Vec<ResultItem>,
     selected_index: usize,
     is_searching: bool,
+    scroll_handle: ScrollHandle,
 }
 
 impl Input_element {
@@ -38,6 +42,8 @@ impl Input_element {
             KeyBinding::new("enter", ExecuteSelected, None),
             KeyBinding::new("down", NavigateDown, None),
             KeyBinding::new("up", NavigateUp, None),
+            KeyBinding::new("tab", NavigateDown, None),
+            KeyBinding::new("shift-tab", NavigateUp, None),
         ]);
         
         cx.observe_window_activation(window, |_this, _window, cx| {
@@ -90,6 +96,7 @@ impl Input_element {
             selected_index: 0,
             is_searching: false,
             dispatcher,
+            scroll_handle: ScrollHandle::new(),
         }
     }
     
@@ -106,15 +113,27 @@ impl Input_element {
             window.hide_window();
         }
     }
+
     fn navigate_down(&mut self, _: &NavigateDown, window: &mut Window, cx: &mut Context<Self>) {
-        self.selected_index = (self.selected_index + 1) % self.results.len();
-        cx.notify();
-    }
-    fn navigate_up(&mut self, _: &NavigateUp, window: &mut Window, cx: &mut Context<Self>) {
-        if self.selected_index != 0 {
-            self.selected_index = (self.selected_index - 1) % self.results.len();
+        if !self.results.is_empty() {
+            self.selected_index = (self.selected_index + 1) % self.results.len();
+            cx.notify();
+            // scrolling to the item
+            self.scroll_handle.scroll_to_item(self.selected_index);
         }
-        cx.notify();
+    }
+
+    fn navigate_up(&mut self, _: &NavigateUp, window: &mut Window, cx: &mut Context<Self>) {
+        if !self.results.is_empty() {
+            if self.selected_index == 0 {
+                self.selected_index = self.results.len() - 1;
+            } else {
+                self.selected_index = (self.selected_index - 1) % self.results.len();
+            }
+            cx.notify();
+            // scrolling to the item
+            self.scroll_handle.scroll_to_item(self.selected_index);
+        }
     }
 }
 
@@ -158,7 +177,7 @@ impl Render for Input_element {
                     .flex_col()
                     .gap_1()
                     .child(
-                        ResultList::new(self.results.clone(), self.selected_index, false)
+                        ResultList::new(self.results.clone(), self.selected_index, false, self.scroll_handle.clone())
                     ) 
             )
     }
@@ -266,7 +285,7 @@ impl RenderOnce for ResultRow {
             })
             .when(!is_selected, |this| {
                 this.hover(|style| {
-                    style.bg(gpui::rgb(0xf5f5f5))
+                    style.bg(gpui::rgb(0xe3f2fd))
                 })
             })
             .child(result_icon(&icon))
@@ -304,11 +323,12 @@ struct ResultList {
     results: Vec<ResultItem>,
     selected_index: usize,
     is_searching: bool,
+    scroll_handle: ScrollHandle,
 }
 
 impl ResultList {
-    pub fn new(results: Vec<ResultItem>, selected_index: usize, is_searching: bool) -> Self {
-        Self { results, selected_index, is_searching }
+    pub fn new(results: Vec<ResultItem>, selected_index: usize, is_searching: bool, scroll_handle: ScrollHandle) -> Self {
+        Self { results, selected_index, is_searching, scroll_handle }
     }
 }
 
@@ -317,13 +337,15 @@ impl RenderOnce for ResultList {
         let mut list_div = 
             div()
                 .id("result_list")
-                .flex_1()
+                // .flex_1()
                 // .w_full()
                 .w(px(600.0))
+                .max_h(px(400.0))
                 .bg(gpui::black())
                 .border_1()
                 .border_color(gpui::white())
-                .overflow_y_scroll();
+                .overflow_y_scroll()
+                .track_scroll(&self.scroll_handle);
         if self.is_searching {
             list_div = list_div.child(
                 div()
