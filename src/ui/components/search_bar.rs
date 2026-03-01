@@ -4,7 +4,6 @@ use gpui:: {
     App, Application, AssetSource, AsyncApp, Bounds, Context, Entity, FocusHandle, Focusable, KeyBinding, KeyDownEvent, Point, ScrollHandle, SharedString, Size, Subscription, Window, WindowBounds, WindowOptions, actions, div, prelude::*, px, rgb, size
 };
 use std::result;
-// use core::index;
 use std::sync::{Arc, Condvar};
 use adabraka_ui::components::input::{Input, InputEvent, InputVariant};
 use adabraka_ui::components::input_state::InputState;
@@ -177,7 +176,7 @@ impl Render for Input_element {
                     .flex_col()
                     .gap_1()
                     .child(
-                        ResultList::new(self.results.clone(), self.selected_index, false, self.scroll_handle.clone())
+                        ResultList::new(self.results.clone(), self.selected_index, self.is_searching, self.scroll_handle.clone())
                     ) 
             )
     }

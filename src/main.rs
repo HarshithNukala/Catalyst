@@ -57,8 +57,10 @@ fn main() {
         let registry = std::sync::Arc::new(crate::core::plugin::PluginRegistry::new());
         let dispatcher = std::sync::Arc::new(ActionDispatcher::new(registry.clone()));
         futures::executor::block_on(async {
-            let plugin: std::sync::Arc<dyn crate::core::plugin::Plugin> = std::sync::Arc::new(crate::plugins::implicit::app_search::AppSearchPlugin::new());
-            let _ = registry.register(plugin).await;
+            let app_search_plugin: std::sync::Arc<dyn crate::core::plugin::Plugin> = std::sync::Arc::new(crate::plugins::implicit::app_search::AppSearchPlugin::new());
+            let _ = registry.register(app_search_plugin).await;
+            let testing_implicit_plugin: std::sync::Arc<dyn crate::core::plugin::Plugin> = std::sync::Arc::new(crate::plugins::implicit::testing_implicit::TestingImplicitPlugin::new());
+            let _ = registry.register(testing_implicit_plugin).await;
         });
         let engine = std::sync::Arc::new(crate::core::engine::QueryEngine::new(registry.clone()));
         

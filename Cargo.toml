@@ -39,6 +39,7 @@ gpui-component-assets = "0.5.1"
 global-hotkey = "0.7.0"
 lnk = "0.6.3"
 dirs = "6.0.0"
+fuzzy-matcher = "0.3.7"
 
 
 # Windows-specific
