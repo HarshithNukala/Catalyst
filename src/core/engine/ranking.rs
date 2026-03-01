@@ -12,7 +12,7 @@ impl Ranker {
             result.score = self.calculate_score(result, &query_lower)
         }
         results.sort_by(|a, b| {
-            a.score.partial_cmp(&b.score).unwrap_or(std::cmp::Ordering::Equal)
+            b.score.partial_cmp(&a.score).unwrap_or(std::cmp::Ordering::Equal)
         });
     }
     fn calculate_score(&self, result: &ResultItem, query: &str) -> f32 {
