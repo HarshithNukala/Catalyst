@@ -40,6 +40,9 @@ global-hotkey = "0.7.0"
 lnk = "0.6.3"
 dirs = "6.0.0"
 fuzzy-matcher = "0.3.7"
+local-ip-address = "0.6.10"
+public-ip = "0.2.2"
+arboard = "3.6.1"
 
 
 # Windows-specific
