@@ -67,6 +67,8 @@ fn main() {
             let _ = registry.register(ip_plugin).await;
             let calculator_plugin: std::sync::Arc<dyn crate::core::plugin::Plugin> = std::sync::Arc::new(crate::plugins::implicit::calculator::CalculatorPlugin::new());
             let _ = registry.register(calculator_plugin).await;
+            let web_search_plugin: std::sync::Arc<dyn crate::core::plugin::Plugin> = std::sync::Arc::new(crate::plugins::implicit::web_search::WebSearchPlugin::new());
+            let _ = registry.register(web_search_plugin).await;
         });
         let engine = std::sync::Arc::new(crate::core::engine::QueryEngine::new(registry.clone()));
         
@@ -116,6 +118,7 @@ fn main() {
                         _cx.activate(true);
                         window.show_window();
                         view.input_state.focus_handle(_cx).focus(window);
+                        window.dispatch_action(Box::new(adabraka_ui::components::input::SelectAll), _cx);
                     });
                 });
             }
