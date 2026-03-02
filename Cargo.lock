@@ -2146,6 +2146,17 @@ dependencies = [
 ]
 
 [[package]]
+name = "enum-primitive-derive"
+version = "0.2.2"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "c375b9c5eadb68d0a6efee2999fef292f45854c3444c86f09d8ab086ba942b0e"
+dependencies = [
+ "num-traits",
+ "quote",
+ "syn 1.0.109",
+]
+
+[[package]]
 name = "enumflags2"
 version = "0.7.12"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -2286,6 +2297,32 @@ checksum = "8be9f3dfaaffdae2972880079a491a1a8bb7cbed0b8dd7a347f668b4150a3b93"
 dependencies = [
  "event-listener 5.4.1",
  "pin-project-lite",
+]
+
+[[package]]
+name = "everything-sdk"
+version = "0.0.6"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "53ba4925af6797862633ba250466560d3910de163d49523b82e0a785b8a7c260"
+dependencies = [
+ "bitflags 2.10.0",
+ "enum-primitive-derive",
+ "everything-sdk-sys",
+ "num-traits",
+ "thiserror 1.0.69",
+ "tracing",
+ "widestring",
+ "windows 0.52.0",
+]
+
+[[package]]
+name = "everything-sdk-sys"
+version = "0.0.3+2"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "a4c7f4eef3105938140e285d69d4d84ce0b9830374584c6d5f41ba7b07f6f226"
+dependencies = [
+ "cc",
+ "windows 0.52.0",
 ]
 
 [[package]]
@@ -3825,6 +3862,7 @@ dependencies = [
  "clipboard-win",
  "dirs 6.0.0",
  "env_logger",
+ "everything-sdk",
  "futures",
  "fuzzy-matcher",
  "global-hotkey",
@@ -3838,6 +3876,7 @@ dependencies = [
  "serde",
  "serde_json",
  "thiserror 2.0.18",
+ "thousands",
  "tokio",
  "toml 0.9.11+spec-1.1.0",
  "windows 0.62.2",
@@ -6678,6 +6717,12 @@ dependencies = [
 ]
 
 [[package]]
+name = "thousands"
+version = "0.2.0"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "3bf63baf9f5039dadc247375c29eb13706706cfde997d0330d05aa63a77d8820"
+
+[[package]]
 name = "thread_local"
 version = "1.1.9"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -7623,6 +7668,12 @@ dependencies = [
 ]
 
 [[package]]
+name = "widestring"
+version = "1.2.1"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "72069c3113ab32ab29e5584db3c6ec55d416895e60715417b5b883a357c3e471"
+
+[[package]]
 name = "winapi"
 version = "0.3.9"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -7652,6 +7703,16 @@ name = "winapi-x86_64-pc-windows-gnu"
 version = "0.4.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "712e227841d057c1ee1cd2fb22fa7e5a5461ae8e48fa2ca79ec42cfc1931183f"
+
+[[package]]
+name = "windows"
+version = "0.52.0"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "e48a53791691ab099e5e2ad123536d0fff50652600abaf43bbf952894110d0be"
+dependencies = [
+ "windows-core 0.52.0",
+ "windows-targets 0.52.6",
+]
 
 [[package]]
 name = "windows"
@@ -7717,6 +7778,15 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "23b2d95af1a8a14a3c7367e1ed4fc9c20e0a26e79551b1454d72583c97cc6610"
 dependencies = [
  "windows-core 0.62.2",
+]
+
+[[package]]
+name = "windows-core"
+version = "0.52.0"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "33ab640c8d7e35bf8ba19b884ba838ceb4fba93a4e8c65a9059d08afcfc683d9"
+dependencies = [
+ "windows-targets 0.52.6",
 ]
 
 [[package]]

@@ -65,6 +65,8 @@ fn main() {
             let _ = registry.register(testing_explicit_plugin).await;
             let ip_plugin: std::sync::Arc<dyn crate::core::plugin::Plugin> = std::sync::Arc::new(crate::plugins::explicit::ip::IpPlugin::new());
             let _ = registry.register(ip_plugin).await;
+            let calculator_plugin: std::sync::Arc<dyn crate::core::plugin::Plugin> = std::sync::Arc::new(crate::plugins::implicit::calculator::CalculatorPlugin::new());
+            let _ = registry.register(calculator_plugin).await;
         });
         let engine = std::sync::Arc::new(crate::core::engine::QueryEngine::new(registry.clone()));
         

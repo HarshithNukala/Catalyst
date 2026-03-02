@@ -43,6 +43,8 @@ fuzzy-matcher = "0.3.7"
 local-ip-address = "0.6.10"
 public-ip = "0.2.2"
 arboard = "3.6.1"
+everything-sdk = "0.0.6"
+thousands = "0.2.0"
 
 
 # Windows-specific

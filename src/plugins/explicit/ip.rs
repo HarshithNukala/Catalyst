@@ -10,7 +10,6 @@ use arboard::Clipboard;
 use crate::core::plugin::{Plugin, PluginContext, Trigger};
 use crate::core::model::{Action, BuiltInIcon, ResultIcon, ResultItem};
 
-
 pub struct IpPlugin {}
 
 impl IpPlugin {
