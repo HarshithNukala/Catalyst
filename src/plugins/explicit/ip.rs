@@ -44,7 +44,7 @@ impl Plugin for IpPlugin {
                 self.id().to_string()
             )
             .with_subtitle("Public IP")
-            .with_icon(ResultIcon::BuiltIn(BuiltInIcon::Search))
+            .with_icon(ResultIcon::BuiltIn(BuiltInIcon::IP))
             .with_score(100.0)
         );
         results.push(
@@ -55,7 +55,7 @@ impl Plugin for IpPlugin {
                 self.id().to_string()
             )
             .with_subtitle("Private IP")
-            .with_icon(ResultIcon::BuiltIn(BuiltInIcon::Search))
+            .with_icon(ResultIcon::BuiltIn(BuiltInIcon::IP))
             .with_score(100.0)
         );
         results

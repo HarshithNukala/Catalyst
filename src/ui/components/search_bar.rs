@@ -45,9 +45,10 @@ impl Input_element {
             KeyBinding::new("shift-tab", NavigateUp, None),
         ]);
         
-        cx.observe_window_activation(window, |_this, _window, cx| {
-            if !_window.is_window_active() {
-                cx.hide();
+        cx.observe_window_activation(window, |_this, window, cx| {
+            if !window.is_window_active() {
+                println!("Focus removed from application so hiding window.");
+                window.hide_window();
             }
         }).detach();
 
@@ -257,7 +258,9 @@ impl RenderOnce for ResultRow {
                         BuiltInIcon::Settings => "⚙️",
                         BuiltInIcon::AI => "🤖",
                         BuiltInIcon::Web => "🌐",
-                        BuiltInIcon::App => "📱"
+                        BuiltInIcon::App => "📱",
+                        BuiltInIcon::Dictionary => "📖",
+                        BuiltInIcon::IP => "🌐",
                     };
                     div()
                         .size(px(40.0))
