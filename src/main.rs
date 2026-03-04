@@ -18,11 +18,9 @@ use adabraka_ui::components::input::{Input, InputEvent};
 use adabraka_ui::components::input_state::InputState;
 use futures::channel::mpsc;
 use futures::StreamExt;
+use gpui::WindowKind;
 
 use crate::core::engine::ActionDispatcher;
-
-
-
 
 struct Assets {
     base: PathBuf,
@@ -53,7 +51,7 @@ fn main() {
         adabraka_ui::init(cx);
         adabraka_ui::set_icon_base_path("assets/icons");
         install_theme(cx, Theme::dark());
-
+        
         let registry = std::sync::Arc::new(crate::core::plugin::PluginRegistry::new());
         let dispatcher = std::sync::Arc::new(ActionDispatcher::new(registry.clone()));
         futures::executor::block_on(async {
@@ -69,6 +67,8 @@ fn main() {
             let _ = registry.register(calculator_plugin).await;
             let web_search_plugin: std::sync::Arc<dyn crate::core::plugin::Plugin> = std::sync::Arc::new(crate::plugins::implicit::web_search::WebSearchPlugin::new());
             let _ = registry.register(web_search_plugin).await;
+            let dictionary_plugin: std::sync::Arc<dyn crate::core::plugin::Plugin> = std::sync::Arc::new(crate::plugins::explicit::dictionary::DictionaryPlugin::new());
+            let _ = registry.register(dictionary_plugin).await;
         });
         let engine = std::sync::Arc::new(crate::core::engine::QueryEngine::new(registry.clone()));
         
@@ -95,6 +95,7 @@ fn main() {
                 //     ..Default::default()
                 // }),
                 titlebar: None,
+                // kind: WindowKind::PopUp,
                 focus: true,
                 show: true,
                 is_movable: false,
