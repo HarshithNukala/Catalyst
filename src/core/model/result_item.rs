@@ -23,7 +23,8 @@ pub enum BuiltInIcon {
     Web,
     App,
     Dictionary,
-    IP
+    IP,
+    Exit
 }
 
 #[derive(Debug, Clone, PartialEq)]

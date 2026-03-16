@@ -24,6 +24,8 @@ pub enum Action {
         action_type: String,
         data: serde_json::Value
     },
+    SystemCommand(String),
+    Exit,
     // Do nothing
     None,
 }

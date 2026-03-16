@@ -48,6 +48,8 @@ thousands = "0.2.0"
 google-search = "0.1.1"
 csv = "1.4.0"
 rusqlite = { version = "0.38.0", features = ["bundled"] }
+system_shutdown = "4.1.0"
+raw-window-handle = "0.6.2"
 
 
 # Windows-specific
@@ -59,5 +61,7 @@ windows = { version = "0.62.2", features = [
     "Win32_UI_Input_KeyboardAndMouse",
     "Win32_Storage_FileSystem",
     "Win32_System_Com",
+    "ApplicationModel_DataTransfer",
+    "Foundation_Collections",
 ] }
 clipboard-win = "5.0"

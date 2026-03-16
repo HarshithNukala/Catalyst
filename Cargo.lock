@@ -3974,9 +3974,11 @@ dependencies = [
  "meval",
  "once_cell",
  "public-ip",
+ "raw-window-handle 0.6.2",
  "rusqlite",
  "serde",
  "serde_json",
+ "system_shutdown",
  "thiserror 2.0.18",
  "thousands",
  "tokio",
@@ -6752,6 +6754,16 @@ checksum = "8e1d1b10ced5ca923a1fcb8d03e96b8d3268065d724548c0211415ff6ac6bac4"
 dependencies = [
  "core-foundation-sys",
  "libc",
+]
+
+[[package]]
+name = "system_shutdown"
+version = "4.1.0"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "29396e5e1b637d102ec5037bf7fbb8da78264fa299101ced9ce827756b1bac02"
+dependencies = [
+ "windows 0.62.2",
+ "zbus",
 ]
 
 [[package]]

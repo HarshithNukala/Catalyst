@@ -13,12 +13,21 @@ use gpui:: {
 };
 
 use adabraka_ui::prelude::*;
+// use windows::Win32::UI::WindowsAndMessaging::HWND_TOPMOST;
 use std::path::PathBuf;
 use adabraka_ui::components::input::{Input, InputEvent};
 use adabraka_ui::components::input_state::InputState;
 use futures::channel::mpsc;
 use futures::StreamExt;
 use gpui::WindowKind;
+use gpui::WindowBackgroundAppearance::Transparent;
+
+use raw_window_handle::HasWindowHandle;
+use windows::Win32::Foundation::HWND;
+use windows::Win32::UI::WindowsAndMessaging::{
+    SetWindowPos, HWND_TOPMOST, SWP_NOMOVE, SWP_NOSIZE, SWP_SHOWWINDOW,
+};
+
 
 use crate::core::engine::ActionDispatcher;
 
@@ -69,6 +78,14 @@ fn main() {
             let _ = registry.register(web_search_plugin).await;
             let dictionary_plugin: std::sync::Arc<dyn crate::core::plugin::Plugin> = std::sync::Arc::new(crate::plugins::explicit::dictionary::DictionaryPlugin::new());
             let _ = registry.register(dictionary_plugin).await;
+            let system_commands_plugin: std::sync::Arc<dyn crate::core::plugin::Plugin> = std::sync::Arc::new(crate::plugins::implicit::system_commands::SystemCommandsPlugin::new());
+            let _ = registry.register(system_commands_plugin).await;
+            let clipboard_plugin: std::sync::Arc<dyn crate::core::plugin::Plugin> = std::sync::Arc::new(crate::plugins::explicit::clipboard::ClipboardPlugin::new());
+            let _ = registry.register(clipboard_plugin).await;
+            let exit_plugin: std::sync::Arc<dyn crate::core::plugin::Plugin> = std::sync::Arc::new(crate::plugins::implicit::exit::ExitPlugin::new());
+            let _ = registry.register(exit_plugin).await;
+            let terminal_plugin: std::sync::Arc<dyn crate::core::plugin::Plugin> = std::sync::Arc::new(crate::plugins::explicit::terminal::TerminalPlugin::new());
+            let _ = registry.register(terminal_plugin).await;
         });
         let engine = std::sync::Arc::new(crate::core::engine::QueryEngine::new(registry.clone()));
         
@@ -96,6 +113,7 @@ fn main() {
                 // }),
                 titlebar: None,
                 // kind: WindowKind::PopUp,
+                window_background: gpui::WindowBackgroundAppearance::Transparent,
                 focus: true,
                 show: true,
                 is_movable: false,
@@ -118,8 +136,22 @@ fn main() {
                         println!("Showing app");
                         _cx.activate(true);
                         window.show_window();
+                        // if let Ok(handle) = window.window_handle() {
+                        //     if let raw_window_handle::RawWindowHandle::Win32(win32_handle) = handle.as_raw() {
+                        //         let hwnd = HWND(win32_handle.hwnd.get() as *mut _);
+                        //         unsafe {
+                        //             let _ = SetWindowPos(
+                        //                 hwnd,
+                        //                 Some(HWND_TOPMOST),
+                        //                 0, 0, 0, 0,
+                        //                 SWP_NOMOVE | SWP_NOSIZE | SWP_SHOWWINDOW,
+                        //             );  
+                        //         }
+                        //     }
+                        // }
                         view.input_state.focus_handle(_cx).focus(window);
                         window.dispatch_action(Box::new(adabraka_ui::components::input::SelectAll), _cx);
+                        
                     });
                 });
             }

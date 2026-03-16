@@ -13,7 +13,7 @@ use crate::core::model::{Action, BuiltInIcon, ResultIcon, ResultItem};
 use crate::core::plugin;
 use crate::core::plugin::{PluginContext, PluginRegistry};
 
-actions!(Input_element, [HideApp, ExecuteSelected, NavigateDown, NavigateUp]);
+actions!(Input_element, [HideApp, ExecuteSelected, NavigateDown, NavigateUp, DeleteWordBackward]);
 
 pub struct Input_element {
     pub input_state: Entity<InputState>,
@@ -43,6 +43,7 @@ impl Input_element {
             KeyBinding::new("up", NavigateUp, None),
             KeyBinding::new("tab", NavigateDown, None),
             KeyBinding::new("shift-tab", NavigateUp, None),
+            KeyBinding::new("ctrl-backspace", DeleteWordBackward, None)
         ]);
         
         cx.observe_window_activation(window, |_this, window, cx| {
@@ -135,6 +136,18 @@ impl Input_element {
             self.scroll_handle.scroll_to_item(self.selected_index);
         }
     }
+
+    fn delete_word_backward(&mut self, _: &DeleteWordBackward, window: &mut Window, cx: &mut Context<Self>) {
+        let text = self.text.to_string();
+        let mut words = text.split_whitespace().collect::<Vec<&str>>();
+        if !words.is_empty() {
+            words.pop();
+            self.input_state.update(cx, |state, cx| {
+                self.text = words.join(" ").into();
+            });
+            cx.notify();
+        }
+    }
 }
 
 impl Render for Input_element {
@@ -155,6 +168,7 @@ impl Render for Input_element {
             .on_action(cx.listener(Self::execute_selected))
             .on_action(cx.listener(Self::navigate_down))
             .on_action(cx.listener(Self::navigate_up))
+            .on_action(cx.listener(Self::delete_word_backward))
             .child(
                 Input::new(&self.input_state)
                     .placeholder("Type to search...")
@@ -261,6 +275,7 @@ impl RenderOnce for ResultRow {
                         BuiltInIcon::App => "📱",
                         BuiltInIcon::Dictionary => "📖",
                         BuiltInIcon::IP => "🌐",
+                        BuiltInIcon::Exit => "❌",
                     };
                     div()
                         .size(px(40.0))
@@ -336,6 +351,10 @@ impl ResultList {
 
 impl RenderOnce for ResultList {
     fn render(self, window: &mut Window, cx: &mut App) -> impl IntoElement {
+        if self.results.is_empty() {
+            return div()
+                .id("empty");
+        } 
         let mut list_div = 
             div()
                 .id("result_list")
@@ -356,29 +375,6 @@ impl RenderOnce for ResultList {
                     .justify_center()
                     .text_color(gpui::rgb(0x666666))
                     .child("Searching...")
-            );
-        } else if self.results.is_empty() {
-            list_div = list_div.child(
-                div()
-                .p_8()
-                .flex()
-                .items_center()
-                .gap_2()
-                // .w_full()
-                .w(px(600.0))
-                .bg(gpui::black())
-                .h(px(60.0))
-                .rounded_md()
-                .child(
-                    div()
-                    .text_size(px(48.0))
-                    .child("🔍")
-                )
-                .child(
-                    div()
-                    .text_color(gpui::rgb(0x999999))
-                    .child("No results found.")
-                )
             );
         } else {
             for (index, result) in self.results.into_iter().enumerate() {
