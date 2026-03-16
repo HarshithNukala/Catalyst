@@ -42,7 +42,9 @@ impl Plugin for CalculatorPlugin {
                 self.id().to_string()
             )
             .with_subtitle("Calculator")
-            .with_icon(ResultIcon::BuiltIn(BuiltInIcon::Calculator)));
+            .with_icon(ResultIcon::BuiltIn(BuiltInIcon::Calculator))
+            .with_score(100.0)
+        );
         }
         results
     }

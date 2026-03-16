@@ -39,7 +39,7 @@ impl Plugin for WebSearchPlugin {
             )
             .with_subtitle("Search the web")
             .with_icon(ResultIcon::BuiltIn(BuiltInIcon::Search))
-            .with_score(-25.0)
+            .with_score(-100.0)
         );
         results
     }
