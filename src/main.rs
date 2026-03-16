@@ -5,6 +5,7 @@ mod platform;
 mod plugins;
 mod services;
 mod ui;
+mod app;
 
 use std::process::Child;
 
@@ -122,7 +123,7 @@ fn main() {
                 ..Default::default()
             },
             |window, cx| {
-                cx.new(|cx| ui::components::search_bar::Input_element::new(window, cx, engine.clone(), dispatcher.clone()))
+                cx.new(|cx| app::app::new(window, cx, engine.clone(), dispatcher.clone()))
             },
         )
         .unwrap();
@@ -149,7 +150,7 @@ fn main() {
                         //         }
                         //     }
                         // }
-                        view.input_state.focus_handle(_cx).focus(window);
+                        view.search_bar.update(_cx, |search_bar, _cx| search_bar.input_state.focus_handle(_cx).focus(window));
                         window.dispatch_action(Box::new(adabraka_ui::components::input::SelectAll), _cx);
                         
                     });

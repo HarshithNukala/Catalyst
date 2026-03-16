@@ -2,7 +2,6 @@ use std::result;
 use std::sync::{Arc, RwLock};
 use anyhow::Ok;
 use async_trait::async_trait;
-use termlauncher::Application;
 use std::os::windows::process::CommandExt;
 
 use crate::core::plugin::{Plugin, PluginContext, Trigger};
