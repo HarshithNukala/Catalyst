@@ -154,10 +154,27 @@ impl app {
 
 impl Render for app {
     fn render(&mut self, window: &mut Window, cx: &mut Context<Self>) -> impl IntoElement {
+
+        let search_bar_height = 60.0_f32;  // search bar + margin
+        let row_height = 60.0_f32;
+        let padding = 16.0_f32;  // p_2 top + bottom
+        
+        let results_height = if self.results.is_empty() {
+            0.0
+        } else {
+            let raw = (self.results.len() as f32 * row_height) + padding;
+            raw.min(400.0 + padding)  // capped at max_h(400) + padding
+        };
+        
+        let total_height = search_bar_height + results_height;
+        
+        // Resize the window dynamically
+        window.resize(size(px(610.0), px(total_height)));
+
         div()
             .flex()
             .flex_col()
-            .bg(rgb(0x505050))
+            .bg(rgb(0x13144A))
             .w(px(610.0))
             .p_0()
             .m_0()
@@ -180,15 +197,13 @@ impl Render for app {
                     .text_size(px(30.0))
                     .line_height(px(35.0))
                     .m_1()
-                    // .bg(rgb(0x505050))
-                    // .variant(InputVariant::Ghost)
-                    // .border_color(rgb(0x505050)  )
+                    .bg(rgb(0x13144A))
+                    .variant(InputVariant::Ghost)
+                    .justify_center()
             )
             .child(
                 div()
                     .flex()
-                    .border_2()
-                    .border_color(gpui::white())
                     .p_2()
                     .flex_col()
                     .gap_1()

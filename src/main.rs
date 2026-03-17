@@ -60,7 +60,9 @@ fn main() {
     Application::new().run(|cx: &mut App| {
         adabraka_ui::init(cx);
         adabraka_ui::set_icon_base_path("assets/icons");
-        install_theme(cx, Theme::dark());
+        let mut theme = Theme::dark();
+        theme.tokens.ring = gpui::transparent_black();
+        install_theme(cx, theme);
         
         let registry = std::sync::Arc::new(crate::core::plugin::PluginRegistry::new());
         let dispatcher = std::sync::Arc::new(ActionDispatcher::new(registry.clone()));
@@ -91,7 +93,7 @@ fn main() {
         let engine = std::sync::Arc::new(crate::core::engine::QueryEngine::new(registry.clone()));
         
         let window_width = px(610.0);
-        let window_height = px(500.0);
+        let window_height = px(60.0);
         let displays = cx.displays();
         let primary_display = &displays[0];
         let screen_bounds = primary_display.bounds();

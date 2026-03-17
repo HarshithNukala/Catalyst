@@ -105,12 +105,15 @@ impl RenderOnce for ResultRow {
             .items_center()
             .gap_3()
             .cursor_pointer()
+            .rounded(px(5.0))
+            .bg(rgb(0x07006C))
+            .border_0()
             .when(is_selected, |this| {
-                this.bg(gpui::rgb(0xe3f2fd))
+                this.bg(gpui::rgb(0x1000A9))
             })
             .when(!is_selected, |this| {
                 this.hover(|style| {
-                    style.bg(gpui::rgb(0xe3f2fd))
+                    style.bg(gpui::rgb(0x1000A9))
                 })
             })
             .child(result_icon(&icon))
@@ -128,7 +131,7 @@ impl RenderOnce for ResultRow {
                             .truncate()
                             .child(title)
                             .when(is_selected, |this| {
-                                this.text_color(gpui::black())
+                                this.text_color(gpui::white())
                             })
                     )
                     .when_some(subtitle, |this, subtitle| {

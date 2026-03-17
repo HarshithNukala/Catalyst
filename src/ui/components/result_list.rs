@@ -32,8 +32,7 @@ impl RenderOnce for ResultList {
                 .w(px(600.0))
                 .max_h(px(400.0))
                 .bg(gpui::black())
-                .border_1()
-                .border_color(gpui::white())
+                .border_0()
                 .overflow_y_scroll()
                 .track_scroll(&self.scroll_handle);
         if self.is_searching {
