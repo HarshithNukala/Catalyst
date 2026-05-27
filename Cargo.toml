@@ -50,6 +50,8 @@ csv = "1.4.0"
 rusqlite = { version = "0.38.0", features = ["bundled"] }
 system_shutdown = "4.1.0"
 raw-window-handle = "0.6.2"
+image = "0.25.10"
+md5 = "0.8.0"
 
 
 # Windows-specific
@@ -63,5 +65,7 @@ windows = { version = "0.62.2", features = [
     "Win32_System_Com",
     "ApplicationModel_DataTransfer",
     "Foundation_Collections",
+    "Win32_UI_Shell",
+    "Win32_Graphics_Gdi",
 ] }
 clipboard-win = "5.0"

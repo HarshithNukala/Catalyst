@@ -37,11 +37,8 @@ impl RenderOnce for ResultRow {
                         .items_center()
                         .justify_center()
                         .child(
-                            title
-                                .chars()
-                                .next()
-                                .unwrap_or('?')
-                                .to_string()
+                            gpui::img(std::path::PathBuf::from(_path.clone()))
+                                .size(px(32.0))
                         )
                         .into_any_element()
                 }
@@ -105,15 +102,17 @@ impl RenderOnce for ResultRow {
             .items_center()
             .gap_3()
             .cursor_pointer()
-            .rounded(px(5.0))
-            .bg(rgb(0x07006C))
+            .bg(rgb(0x13144A))
+            .when(is_selected, |this| {
+                this.rounded(px(5.0))
+            })
             .border_0()
             .when(is_selected, |this| {
-                this.bg(gpui::rgb(0x1000A9))
+                this.bg(gpui::rgb(0x191A61))
             })
             .when(!is_selected, |this| {
                 this.hover(|style| {
-                    style.bg(gpui::rgb(0x1000A9))
+                    style.bg(gpui::rgb(0x191A61))
                 })
             })
             .child(result_icon(&icon))

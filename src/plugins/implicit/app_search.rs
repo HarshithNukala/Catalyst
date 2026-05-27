@@ -1,8 +1,35 @@
 use std::sync::Arc;
 use async_trait::async_trait;
+// use dirs::cache_dir;
+use image::ImageReader;
+use std::path::{Path, PathBuf};
+use md5;
+
 use crate::core::plugin::{Plugin, PluginContext, Trigger};
 use crate::core::model::{Action, BuiltInIcon, ResultIcon, ResultItem};
 use crate::platform::windows::app_index::AppIndex;
+
+fn convert_ico_to_png(ico_path: &Path) -> Option<PathBuf> {
+    let cache_dir = dirs::data_dir()?.join("Catalyst").join("icon_cache");
+    std::fs::create_dir_all(&cache_dir).ok()?;
+    
+    let hash = format!("{:x}", md5::compute(ico_path.to_string_lossy().as_bytes()));
+    let png_path = cache_dir.join(format!("{}.png", hash));
+    
+    if png_path.exists() {
+        return Some(png_path);
+    }
+    // Skip .exe files - can't decode icons from them with the image crate
+    let ext = ico_path.extension()?.to_string_lossy().to_lowercase();
+    if ext == "exe" {
+        return None;
+    }
+    
+    let img = ImageReader::open(ico_path).ok()?.decode().ok()?;
+    img.save_with_format(&png_path, image::ImageFormat::Png).ok()?;
+    Some(png_path)
+}
+
 
 pub struct AppSearchPlugin {
     index: Arc<AppIndex>
@@ -34,7 +61,13 @@ impl Plugin for AppSearchPlugin {
         let matches = self.index.search(query);
         matches.into_iter().take(10).map(|app| {
             let icon = match &app.icon {
-                Some(path) => ResultIcon::Path(path.to_string_lossy().to_string()),
+                Some(path) => {
+                    if let Some(png_path) = convert_ico_to_png(path) {
+                        ResultIcon::Path(png_path.to_string_lossy().to_string())
+                    } else {
+                        ResultIcon::BuiltIn(BuiltInIcon::App)
+                    }
+                }
                 None => ResultIcon::BuiltIn(BuiltInIcon::App)
             };
             ResultItem::new(

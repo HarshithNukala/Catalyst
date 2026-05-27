@@ -30,7 +30,7 @@ impl RenderOnce for ResultList {
                 // .flex_1()
                 // .w_full()
                 .w(px(600.0))
-                .max_h(px(400.0))
+                .max_h(px(360.0))
                 .bg(gpui::black())
                 .border_0()
                 .overflow_y_scroll()

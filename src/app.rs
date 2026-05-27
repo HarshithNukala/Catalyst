@@ -5,7 +5,7 @@ use gpui:: {
 };
 use std::result;
 use std::sync::{Arc, Condvar};
-use adabraka_ui::components::input::{Input, InputEvent, InputVariant};
+use adabraka_ui::components::input::{Input, InputEvent, InputVariant, InputSize};
 use adabraka_ui::components::input_state::InputState;
 
 use crate::core::engine::{ActionDispatcher, QueryEngine};
@@ -163,7 +163,7 @@ impl Render for app {
             0.0
         } else {
             let raw = (self.results.len() as f32 * row_height) + padding;
-            raw.min(400.0 + padding)  // capped at max_h(400) + padding
+            raw.min(360.0 + padding)  // capped at max_h(400) + padding
         };
         
         let total_height = search_bar_height + results_height;
@@ -194,8 +194,8 @@ impl Render for app {
                     .border_0()
                     .w(px(600.0))
                     .h(px(50.0))
-                    .text_size(px(30.0))
-                    .line_height(px(35.0))
+                    .size(InputSize::Lg)
+                    .line_height(px(25.0))
                     .m_1()
                     .bg(rgb(0x13144A))
                     .variant(InputVariant::Ghost)
